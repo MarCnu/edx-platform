@@ -26,10 +26,11 @@ class CourseOutlineItem(object):
     CONFIGURATION_BUTTON_SELECTOR = '.action-item .configure-button'
 
     def __repr__(self):
-        # CourseOutlineItem is also used as a mixin for CourseOutlinePage, which doesn't have a locator
-        # Check for the existence of a locator so that errors when navigating to the course outline page don't show up
-        # as errors in the repr method instead.
-        return "{}(<browser>, {!r})".format(self.__class__.__name__, self.locator if hasattr(self, 'locator') else None)
+        # CourseOutlinePages do not have locators
+        try:
+            return "{}(<browser>, {!r})".format(self.__class__.__name__, self.locator)
+        except AttributeError:
+            return "{}(<browser>)".format(self.__class__.__name__)
 
     def _bounded_selector(self, selector):
         """

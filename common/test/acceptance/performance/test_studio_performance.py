@@ -4,6 +4,8 @@ Single page performance tests for Studio.
 from bok_choy.performance import WebAppPerfReport, with_cache
 from ..pages.studio.login import LoginPage
 from ..pages.studio.signup import SignupPage
+from ..pages.studio.auto_auth import AutoAuthPage
+from ..pages.studio.overview import CourseOutlinePage
 
 
 class StudioPagePerformanceTest(WebAppPerfReport):
@@ -62,3 +64,16 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         signup_page.visit()
         # Save the second har file.
         self.save_har('SignupPage')
+
+    @with_cache
+    def test_visit_course_outline_with_cache(self):
+        """
+        Produce a report for the outline page performance.
+        """
+        auth_page = AutoAuthPage(self.browser, staff=True)
+        auth_page.visit()
+
+        self.new_page('OutlinePage')
+        course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
+        course_outline_page.visit()
+        self.save_har('OutlinePage')

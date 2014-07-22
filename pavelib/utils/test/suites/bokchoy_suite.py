@@ -68,6 +68,9 @@ class BokChoyTestSuite(TestSuite):
             " common/test/db_fixtures/*.json"
         )
 
+        # TODO: Parameterize this as optional command-line argument
+        sh("./manage.py cms --settings=bok_choy import course_data 2013_Spring")
+
         # Ensure the test servers are available
         msg = colorize('green', "Starting test servers...")
         print(msg)
