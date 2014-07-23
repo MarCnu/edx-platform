@@ -2,10 +2,11 @@
 Single page performance tests for Studio.
 """
 from bok_choy.performance import WebAppPerfReport, with_cache
-from ..pages.studio.login import LoginPage
-from ..pages.studio.signup import SignupPage
 from ..pages.studio.auto_auth import AutoAuthPage
+from ..pages.studio.container import ContainerPage
+from ..pages.studio.login import LoginPage
 from ..pages.studio.overview import CourseOutlinePage
+from ..pages.studio.signup import SignupPage
 
 
 class StudioPagePerformanceTest(WebAppPerfReport):
@@ -72,9 +73,9 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         """
         auth_page = AutoAuthPage(self.browser, staff=True)
         auth_page.visit()
+        course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
 
         self.new_page('OutlinePage')
-        course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
         course_outline_page.visit()
         self.save_har('OutlinePage')
 
@@ -88,15 +89,67 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         auth_page.visit()
         course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
         course_outline_page.visit()
-        first_section = course_outline_page.child_at(0)
-        first_subsection = first_section.child_at(0)
+
+        section_title = 'Lecture 1 - Doing the Right Thing'
+        initial_subsection_title = 'Discussion Prompt: Ethics of Torture'
+        edited_subsection_title = 'New Subsection Title'
+
+        if self.with_cache:
+            subsection = course_outline_page.section(section_title).subsection(edited_subsection_title)
+        else:
+            subsection = course_outline_page.section(section_title).subsection(initial_subsection_title)
 
         self.new_page('OutlinePageUpdateSubsection')
         # Since this test is run twice, (second time cached), we need
         # to have a different name each time, otherwise the edit won't
         # go through
         if self.with_cache:
-            first_subsection.change_name('New Subsection Name (with cache)')
+            subsection.change_name(initial_subsection_title)
         else:
-            first_subsection.change_name('New Subsection Name (no cache)')
+            subsection.change_name(edited_subsection_title)
         self.save_har('OutlinePageUpdateSubsection')
+
+    @with_cache
+    def test_visit_unit_page_with_cache(self):
+        """
+        Produce a report for the unit page performance.
+        """
+        auth_page = AutoAuthPage(self.browser, staff=True)
+        auth_page.visit()
+        course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
+        course_outline_page.visit()
+
+        section_title = 'Lecture 1 - Doing the Right Thing'
+        subsection_title = 'Discussion Prompt: Ethics of Torture'
+        unit_title = subsection_title
+
+        unit = course_outline_page.section(section_title).subsection(subsection_title).toggle_expand().unit(unit_title)
+
+        self.new_page('UnitPage')
+        unit.go_to()
+        self.save_har('UnitPage')
+
+    @with_cache
+    def test_publish_unit_page_with_cache(self):
+        """
+        Produce a report for the performance of publishing a unit with changes.
+        """
+        auth_page = AutoAuthPage(self.browser, staff=True)
+        auth_page.visit()
+        course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
+        course_outline_page.visit()
+
+        section_title = 'Lecture 1 - Doing the Right Thing'
+        subsection_title = 'Discussion Prompt: Ethics of Torture'
+        unit_title = subsection_title
+        unit = course_outline_page.section(section_title).subsection(subsection_title).toggle_expand().unit(unit_title)
+        locator = unit.locator
+        unit.go_to()
+
+        container_page = ContainerPage(self.browser, locator)
+        container_page.delete(0)
+
+        self.new_page('PublishUnitPage')
+        container_page.publish_action.click()
+        container_page.wait_for_ajax()
+        self.save_har('PublishUnitPage')
