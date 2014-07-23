@@ -77,3 +77,26 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
         course_outline_page.visit()
         self.save_har('OutlinePage')
+
+    @with_cache
+    def test_update_subsection_in_course_outline_with_cache(self):
+        """
+        Produce a report for the performance of updating a subsection
+        on the outline page.
+        """
+        auth_page = AutoAuthPage(self.browser, staff=True)
+        auth_page.visit()
+        course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
+        course_outline_page.visit()
+        first_section = course_outline_page.child_at(0)
+        first_subsection = first_section.child_at(0)
+
+        self.new_page('OutlinePageUpdateSubsection')
+        # Since this test is run twice, (second time cached), we need
+        # to have a different name each time, otherwise the edit won't
+        # go through
+        if self.with_cache:
+            first_subsection.change_name('New Subsection Name (with cache)')
+        else:
+            first_subsection.change_name('New Subsection Name (no cache)')
+        self.save_har('OutlinePageUpdateSubsection')
