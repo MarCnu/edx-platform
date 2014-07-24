@@ -9,10 +9,65 @@ from ..pages.studio.overview import CourseOutlinePage
 from ..pages.studio.signup import SignupPage
 
 
-class StudioPagePerformanceTest(WebAppPerfReport):
+class StudioPagePerformanceTestExample(WebAppPerfReport):
     """
     Example test case.
     """
+
+    @with_cache
+    def test_signup_flow_with_cache(self):
+        """
+        Produce a report for the login --> signup page performance.
+
+        This example will produde two har files. The first will show the performance
+        of the flow when it starts from a browser with an empty cache. The second (which
+        with have '_cached_2' on the end of the file name), will show the performance when
+        the browser has already been through the flow once before and has cached some assets.
+        """
+        # Declaring a new page will instatiate a new har instance if one hasn't been already.
+        self.new_page('LoginPage')
+
+        login_page = LoginPage(self.browser)
+        login_page.visit()
+
+        # Declare that you are going to a new page first, then navigate to the next page.
+        self.new_page('SignupPage')
+        signup_page = SignupPage(self.browser)
+        signup_page.visit()
+
+        # Save the har file, passing it a name for the file
+        self.save_har('LoginPage_and_SignupPage')
+
+    def test_signup_flow_no_cache(self):
+        """
+        Produce a report for the login --> signup page performance.
+
+        This example will produde two har files. The first will show the performance
+        of the LoginPage when it starts from a browser with an empty cache. The second will show
+        the performance of the SignUp page when the browser has already been to the LoginPage
+        and has cached some assets.
+        """
+
+        self.new_page('LoginPage')
+        login_page = LoginPage(self.browser)
+        login_page.visit()
+
+        # Save the first har file.
+        # Note that saving will 'unset' the har, so that if you were to declare another new
+        # page after this point, it would start recording a new har. This means that you can
+        # also explitily capture many hars in a single test. See the next example.
+        self.save_har('LoginPage')
+
+        # Declare that you are going to a new page, then navigate to the next page.
+        # This will start recording a new har here.
+        self.new_page('SignupPage')
+        signup_page = SignupPage(self.browser)
+        signup_page.visit()
+        # Save the second har file.
+        self.save_har('SignupPage')
+
+
+class StudioPagePerformanceTest(WebAppPerfReport):
     def setUp(self):
         """
         Authenticate as staff so we can view and edit courses.
@@ -90,63 +145,18 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         self.save_har(har_name)
 
     @with_cache
-    def test_signup_flow_with_cache(self):
-        """
-        Produce a report for the login --> signup page performance.
-
-        This example will produde two har files. The first will show the performance
-        of the flow when it starts from a browser with an empty cache. The second (which
-        with have '_cached_2' on the end of the file name), will show the performance when
-        the browser has already been through the flow once before and has cached some assets.
-        """
-        # Declaring a new page will instatiate a new har instance if one hasn't been already.
-        self.new_page('LoginPage')
-
-        login_page = LoginPage(self.browser)
-        login_page.visit()
-
-        # Declare that you are going to a new page first, then navigate to the next page.
-        self.new_page('SignupPage')
-        signup_page = SignupPage(self.browser)
-        signup_page.visit()
-
-        # Save the har file, passing it a name for the file
-        self.save_har('LoginPage_and_SignupPage')
-
-    def test_signup_flow_no_cache(self):
-        """
-        Produce a report for the login --> signup page performance.
-
-        This example will produde two har files. The first will show the performance
-        of the LoginPage when it starts from a browser with an empty cache. The second will show
-        the performance of the SignUp page when the browser has already been to the LoginPage
-        and has cached some assets.
-        """
-
-        self.new_page('LoginPage')
-        login_page = LoginPage(self.browser)
-        login_page.visit()
-
-        # Save the first har file.
-        # Note that saving will 'unset' the har, so that if you were to declare another new
-        # page after this point, it would start recording a new har. This means that you can
-        # also explitily capture many hars in a single test. See the next example.
-        self.save_har('LoginPage')
-
-        # Declare that you are going to a new page, then navigate to the next page.
-        # This will start recording a new har here.
-        self.new_page('SignupPage')
-        signup_page = SignupPage(self.browser)
-        signup_page.visit()
-        # Save the second har file.
-        self.save_har('SignupPage')
-
-    @with_cache
     def test_justice_visit_outline(self):
         """
-        Produce a report for the outline page performance.
+        Produce a report for Justice's outline page performance.
         """
         self.record_visit_course_outline(CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring'))
+
+    @with_cache
+    def test_pub101_visit_outline(self):
+        """
+        Produce a report for Andy's PUB101 outline page performance.
+        """
+        self.record_visit_course_outline(CourseOutlinePage(self.browser, 'AndyA', 'PUB101', 'PUB101'))
 
     @with_cache
     def test_justice_update_subsection(self):
@@ -164,9 +174,24 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         )
 
     @with_cache
+    def test_pub101_update_subsection(self):
+        """
+        Record updating a subsection on Andy's PUB101 outline page.
+        """
+        course_outline_page = CourseOutlinePage(self.browser, 'AndyA', 'PUB101', 'PUB101')
+        course_outline_page.visit()
+
+        self.record_update_subsection_in_course_outline(
+            course_outline_page,
+            'Released',
+            'Released',
+            self.with_cache
+        )
+
+    @with_cache
     def test_justice_visit_unit_page(self):
         """
-        Produce a report for the unit page performance.
+        Produce a report for the unit page performance of Justice.
         """
         course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
         course_outline_page.visit()
@@ -179,15 +204,45 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         self.record_visit_unit_page(course_outline_unit, course_outline_page.course_info)
 
     @with_cache
+    def test_pub101_visit_unit_page(self):
+        """
+        Produce a report for the unit page performance of Andy's PUB101.
+        """
+        course_outline_page = CourseOutlinePage(self.browser, 'AndyA', 'PUB101', 'PUB101')
+        course_outline_page.visit()
+
+        section_title = 'Released'
+        subsection_title = 'Released'
+        unit_title = subsection_title
+
+        course_outline_unit = course_outline_page.section(section_title).subsection(subsection_title).toggle_expand().unit(unit_title)
+        self.record_visit_unit_page(course_outline_unit, course_outline_page.course_info)
+
+    @with_cache
     def test_justice_publish_unit_page(self):
         """
-        Produce a report for the performance of publishing a unit with changes.
+        Produce a report for the performance of publishing a unit with changes on Justice.
         """
         course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
         course_outline_page.visit()
 
         section_title = 'Lecture 1 - Doing the Right Thing'
         subsection_title = 'Discussion Prompt: Ethics of Torture'
+        unit_title = subsection_title
+        course_outline_unit = course_outline_page.section(section_title).subsection(subsection_title).toggle_expand().unit(unit_title)
+
+        self.record_publish_unit_page(course_outline_unit, course_outline_page.course_info)
+
+    @with_cache
+    def test_pub101_publish_unit_page(self):
+        """
+        Produce a report for the performance of publishing a unit with changes on Andy's PUB101.
+        """
+        course_outline_page = CourseOutlinePage(self.browser, 'AndyA', 'PUB101', 'PUB101')
+        course_outline_page.visit()
+
+        section_title = 'Released'
+        subsection_title = 'Released'
         unit_title = subsection_title
         course_outline_unit = course_outline_page.section(section_title).subsection(subsection_title).toggle_expand().unit(unit_title)
 
