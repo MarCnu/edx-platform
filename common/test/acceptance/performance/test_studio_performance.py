@@ -79,7 +79,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         """
         Produce a performance report for visiting the course outline page.
         """
-        har_name = 'OutlinePage_{org}_{course}'.format(
+        har_name = 'new-styling/OutlinePage_{org}_{course}'.format(
             org=course_outline_page.course_info['course_org'],
             course=course_outline_page.course_info['course_num']
         )
@@ -91,7 +91,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         """
         Produce a performance report for visiting a unit page.
         """
-        har_name = 'UnitPage_{org}_{course}'.format(
+        har_name = 'new-styling/UnitPage_{org}_{course}'.format(
             org=course_info['course_org'],
             course=course_info['course_num']
         )
@@ -113,7 +113,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         else:
             subsection = course_outline_page.section(section_title).subsection(original_subsection_title)
 
-        har_name = 'OutlinePageUpdateSubsection_{org}_{course}'.format(
+        har_name = 'new-styling/OutlinePageUpdateSubsection_{org}_{course}'.format(
             org=course_outline_page.course_info['course_org'],
             course=course_outline_page.course_info['course_num']
         )
@@ -134,7 +134,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         container_page = ContainerPage(self.browser, locator)
         container_page.delete(0)
 
-        har_name = 'UnitPagePublish_{org}_{course}'.format(
+        har_name = 'new-styling/UnitPagePublish_{org}_{course}'.format(
             org=course_info['course_org'],
             course=course_info['course_num']
         )
