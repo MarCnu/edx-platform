@@ -8,7 +8,7 @@ from . import BASE_URL
 
 from selenium.webdriver.common.action_chains import ActionChains
 
-from utils import click_css, wait_for_notification, confirm_prompt
+from utils import click_css, confirm_prompt, set_input_value_and_save, wait_for_notification
 
 
 class ContainerPage(PageObject):
@@ -18,6 +18,7 @@ class ContainerPage(PageObject):
     NAME_SELECTOR = '.page-header-title'
     NAME_INPUT_SELECTOR = '.page-header .xblock-field-input'
     NAME_FIELD_WRAPPER_SELECTOR = '.page-header .wrapper-xblock-field'
+    EDIT_NAME_BUTTON_SELECTOR = '.page-header .xblock-field-value-edit'
 
     def __init__(self, browser, locator):
         super(ContainerPage, self).__init__(browser)
@@ -215,6 +216,14 @@ class ContainerPage(PageObject):
         Duplicate the item with index source_index (based on vertical placement in page).
         """
         click_css(self, 'a.duplicate-button', source_index)
+
+    def change_name(self, new_name):
+        """
+        Change the unit's display name.
+        """
+        click_css(self, self.EDIT_NAME_BUTTON_SELECTOR, require_notification=False)
+        set_input_value_and_save(self, self.NAME_INPUT_SELECTOR, new_name)
+        self.wait_for_ajax()
 
     def delete(self, source_index):
         """

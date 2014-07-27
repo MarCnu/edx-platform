@@ -3,10 +3,10 @@ Single page performance tests for Studio.
 """
 from bok_choy.performance import WebAppPerfReport, with_cache
 from ..pages.studio.auto_auth import AutoAuthPage
-from ..pages.studio.container import ContainerPage
 from ..pages.studio.login import LoginPage
 from ..pages.studio.overview import CourseOutlinePage
 from ..pages.studio.signup import SignupPage
+from ..pages.studio.utils import click_css, set_input_value_and_save
 
 
 class StudioPagePerformanceTestExample(WebAppPerfReport):
@@ -99,7 +99,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         course_outline_unit.go_to()
         self.save_har(har_name)
 
-    def record_update_subsection_in_course_outline(self, course_outline_page, section_title, original_subsection_title, with_cache):
+    def record_update_subsection_in_course_outline(self, course_outline_page, section_title, original_subsection_title):
         """
         Produce a performance report for updating a subsection on the
         outline page.
@@ -108,7 +108,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
 
         # Since this method is called twice, the subsection we want
         # will either have its original name or our edited one.
-        if with_cache:
+        if self.with_cache:
             subsection = course_outline_page.section(section_title).subsection(edited_subsection_title)
         else:
             subsection = course_outline_page.section(section_title).subsection(original_subsection_title)
@@ -118,29 +118,33 @@ class StudioPagePerformanceTest(WebAppPerfReport):
             course=course_outline_page.course_info['course_num']
         )
         self.new_page(har_name)
-        if with_cache:
+        if self.with_cache:
             subsection.change_name(original_subsection_title)
         else:
             subsection.change_name(edited_subsection_title)
         self.save_har(har_name)
 
-    def record_publish_unit_page(self, course_outline_unit, course_info):
+    def record_publish_unit_page(self, course_outline_page, section_title, subsection_title, original_unit_title):
         """
         Produce a performance report for publishing an edited unit container page.
         """
-        locator = course_outline_unit.locator
-        course_outline_unit.go_to()
+        edited_unit_title = 'Edited Unit Title'
+        if self.with_cache:
+            current_unit_title = edited_unit_title
+            new_unit_title = original_unit_title
+        else:
+            current_unit_title = original_unit_title
+            new_unit_title = edited_unit_title
 
-        container_page = ContainerPage(self.browser, locator)
-        container_page.delete(0)
+        container_page = course_outline_page.section(section_title).subsection(subsection_title).toggle_expand().unit(current_unit_title).go_to()
+        container_page.change_name(new_unit_title)
 
         har_name = 'new-styling/UnitPagePublish_{org}_{course}'.format(
-            org=course_info['course_org'],
-            course=course_info['course_num']
+            org=course_outline_page.course_info['course_org'],
+            course=course_outline_page.course_info['course_num']
         )
         self.new_page(har_name)
-        # TODO: make the below two steps a method in ContainerPage
-        container_page.publish_action.click()
+        click_css(container_page, '.action-publish')
         container_page.wait_for_ajax()
         self.save_har(har_name)
 
@@ -169,8 +173,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         self.record_update_subsection_in_course_outline(
             course_outline_page,
             'Lecture 1 - Doing the Right Thing',
-            'Discussion Prompt: Ethics of Torture',
-            self.with_cache
+            'Discussion Prompt: Ethics of Torture'
         )
 
     @with_cache
@@ -184,8 +187,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         self.record_update_subsection_in_course_outline(
             course_outline_page,
             'Released',
-            'Released',
-            self.with_cache
+            'Released'
         )
 
     @with_cache
@@ -229,9 +231,8 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         section_title = 'Lecture 1 - Doing the Right Thing'
         subsection_title = 'Discussion Prompt: Ethics of Torture'
         unit_title = subsection_title
-        course_outline_unit = course_outline_page.section(section_title).subsection(subsection_title).toggle_expand().unit(unit_title)
 
-        self.record_publish_unit_page(course_outline_unit, course_outline_page.course_info)
+        self.record_publish_unit_page(course_outline_page, section_title, subsection_title, unit_title)
 
     @with_cache
     def test_pub101_publish_unit_page(self):
@@ -244,6 +245,5 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         section_title = 'Released'
         subsection_title = 'Released'
         unit_title = subsection_title
-        course_outline_unit = course_outline_page.section(section_title).subsection(subsection_title).toggle_expand().unit(unit_title)
 
-        self.record_publish_unit_page(course_outline_unit, course_outline_page.course_info)
+        self.record_publish_unit_page(course_outline_page, section_title, subsection_title, unit_title)
