@@ -123,9 +123,8 @@ def set_input_value(page, css, value):
     input_element = page.q(css=css).results[0]
     # Click in the input to give it the focus
     input_element.click()
-    # Delete all of the characters that are currently there and enter the new value
-    for _x in range(0, len(input_element.get_attribute('value'))):
-        input_element.send_keys(Keys.BACKSPACE)
+    # Select all, then input the value
+    input_element.send_keys(Keys.CONTROL + 'a')
     input_element.send_keys(value)
     # Return the input_element for chaining
     return input_element
