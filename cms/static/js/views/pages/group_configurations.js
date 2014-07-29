@@ -17,6 +17,7 @@ function ($, _, gettext, BaseView, GroupConfigurationsList) {
             this.$('.content-primary').append(this.listView.render().el);
             this.addButtonActions();
             this.addWindowActions();
+            this.focusOnElement();
         },
 
         addButtonActions: function () {
@@ -38,6 +39,22 @@ function ($, _, gettext, BaseView, GroupConfigurationsList) {
                 return gettext(
                     'You have unsaved changes. Do you really want to leave this page?'
                 );
+            }
+        },
+
+        getLocationHash: function() {
+            return window.location.hash;
+        },
+
+        focusOnElement: function () {
+            var hash = this.getLocationHash(), focusedModel;
+
+            if (hash) {
+                focusedModel = this.collection.findWhere(
+                    {id: parseInt(hash.replace('#', ''))}
+                );
+                focusedModel.set('showGroups', true);
+                this.$(hash).focus();
             }
         }
     });

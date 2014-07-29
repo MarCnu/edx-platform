@@ -659,3 +659,45 @@ class GroupConfigurationsTest(ContainerBase, SplitTestMixin):
         ).fulfill()
 
         self.assertIn(unit.name, usage)
+
+    def test_easy_access_from_experiment(self):
+        """
+        Scenario: When a Content Experiment uses a Group Configuration,
+        ensure that the link to that Group Configuration works correctly.
+
+        Given I have a course with two Group Configurations
+        And Content Experiment is assigned to one Group Configuration
+        Then I see a link to Group Configuration
+        When I click on the Group Configuration link
+        Then I see the Group Configurations page
+        And I see that appropriate Group Configuration is expanded.
+        """
+        # Create a new group configurations
+        self.course_fixture._update_xblock(self.course_fixture._course_location, {
+            "metadata": {
+                u"user_partitions": [
+                    UserPartition(0, "Name", "Description.", [Group("0", "Group A"), Group("1", "Group B")]).to_json(),
+                    UserPartition(1, 'Name of second Group Configuration', 'Second group configuration.', [Group("0", 'Alpha'), Group("1", 'Beta'), Group("2", 'Gamma')]).to_json(),
+                ],
+            },
+        })
+
+        # Assign newly created group configuration to unit
+        vertical = self.course_fixture.get_nested_xblocks(category="vertical")[0]
+        self.course_fixture.create_xblock(
+            vertical.locator,
+            XBlockFixtureDesc('split_test', 'Test Content Experiment', metadata={'user_partition_id': 1})
+        )
+
+        unit = UnitPage(self.browser, vertical.locator)
+        unit.visit()
+        experiment = unit.components[0]
+
+        # Find a link to Group Configuration.
+        experiment.go_to_group_configuration_page()
+
+        self.page.wait_for_page()
+
+        # Group Configuration usage information is expanded.
+        self.assertFalse(self.page.group_configurations[0].is_expanded)
+        self.assertTrue(self.page.group_configurations[1].is_expanded)

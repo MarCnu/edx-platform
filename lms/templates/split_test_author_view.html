@@ -5,6 +5,7 @@
 split_test = context.get('split_test')
 user_partition = split_test.descriptor.get_selected_partition()
 messages = split_test.descriptor.validation_messages()
+show_link = settings.FEATURES.get('ENABLE_GROUP_CONFIGURATIONS') and 'split_test' in course_module.advanced_modules
 %>
 
 % if is_root and not is_configured:
@@ -14,10 +15,17 @@ messages = split_test.descriptor.validation_messages()
 % endif
 
 % if user_partition:
+    <%
+    experiment_url = group_configuration_page_url + '#' + str(user_partition.id)
+    %>
     <div class="xblock-message information">
         <p>
             <span class="message-text">
-            ${_("This content experiment uses group configuration '{experiment_name}'.").format(experiment_name=user_partition.name)}
+                % if show_link:
+                    ${_("This content experiment uses group configuration <a href='{experiment_url}'>'{experiment_name}'</a>.").format(experiment_url=experiment_url, experiment_name=user_partition.name)}
+                % else:
+                    ${_("This content experiment uses group configuration '{experiment_name}'.").format(experiment_name=user_partition.name)}
+                % endif
             </span>
         </p>
     </div>

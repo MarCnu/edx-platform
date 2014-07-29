@@ -7,8 +7,12 @@ define([
     'use strict';
     var GroupConfigurationsItem = BaseView.extend({
         tagName: 'section',
-        attributes: {
-            'tabindex': -1
+        attributes: function () {
+
+            return {
+                'id': this.model.get('id'),
+                'tabindex': -1
+            };
         },
 
         className: function () {
@@ -44,7 +48,6 @@ define([
             }
 
             this.$el.html(this.view.render().el);
-            this.$el.focus();
 
             return this;
         }

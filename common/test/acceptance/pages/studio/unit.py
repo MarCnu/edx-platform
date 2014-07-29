@@ -179,3 +179,9 @@ class Component(PageObject):
         Click on settings Save button.
         """
         self._click_button('save_settings')
+
+    def go_to_group_configuration_page(self):
+        """
+        Go to the Group Configuration used by the component.
+        """
+        self.q(css=self._bounded_selector('span.message-text a')).first.click()
