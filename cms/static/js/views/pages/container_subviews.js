@@ -188,14 +188,14 @@ define(["jquery", "underscore", "gettext", "js/views/baseview", "js/views/utils/
 
                 this.checkStaffLock(enableStaffLock);
                 if (enableStaffLock) {
-                    ViewUtils.runOperationShowingMessage(gettext('Setting Staff Lock&hellip;'),
+                    ViewUtils.runOperationShowingMessage(gettext('Hiding Unit from Students&hellip;'),
                         _.bind(saveAndPublishStaffLock, self));
                 } else {
-                    ViewUtils.confirmThenRunOperation(gettext("Remove Staff Lock"),
-                        gettext("Are you sure you want to remove the staff lock? Once you publish this unit, it will be released to students on the release date."),
-                        gettext("Remove Staff Lock"),
+                    ViewUtils.confirmThenRunOperation(gettext("Make Visible to Students"),
+                        gettext("If you make this unit visible to students, students will be able to see its content after the release date has passed and you have published the unit. Do you want to proceed?"),
+                        gettext("Make Visible to Students"),
                         function() {
-                            ViewUtils.runOperationShowingMessage(gettext('Removing Staff Lock&hellip;'),
+                            ViewUtils.runOperationShowingMessage(gettext('Making Unit Visible to Students&hellip;'),
                                 _.bind(saveAndPublishStaffLock, self));
                         },
                         function() {
