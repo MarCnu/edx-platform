@@ -161,7 +161,7 @@ class ContainerPage(PageObject):
 
     def view_published_version(self):
         """
-        Clicks "View Published Version", which will open the published version of the unit page in the LMS.
+        Clicks "View Live Version", which will open the published version of the unit page in the LMS.
 
         Switches the browser to the newly opened LMS window.
         """
