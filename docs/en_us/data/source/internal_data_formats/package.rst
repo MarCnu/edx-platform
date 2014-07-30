@@ -24,7 +24,8 @@ for all of their organizations' edx.org and edge.edx.org courses.
 Data Package Files
 **********************
 
-A data package consists of files that contain event data and database data.
+A data package consists of different files that contain event data and database
+data.
 
 .. note:: All file names include the date in {YYYY}-{MM}-{DD} format.
 
@@ -34,15 +35,21 @@ Event Data
 
 The ``{org}-{site}-events-{date}.log.gz.gpg`` file contains a daily log of
 course events. A separate file is available for courses running on edge.edx.org
-(with "edge" for the {site} in the file name) and on edx.org (with "edx" for
+(with "edge" for {site} in the file name) and on edx.org (with "edx" for
 {site}).
 
-For a partner organization named UniversityX, these daily files are identified by the organization name, the edX site name, and the date. For example, ``universityx-edge-2014-07-25.log.gz.gpg``.
+For a partner organization named UniversityX, these daily files are identified
+by the organization name, the edX site name, and the date. For example,
+``universityx-edge-2014-07-25.log.gz.gpg``.
 
 An alternative option for event data is available. The
 ``{date}-{org}-tracking.tar`` file is available each week. It contains a
 cumulative log of events in all of an organization's courses. Data for courses
-running on both the edx.org and edge.edx.org. sites is included in this file.
+running on both the edx.org and edge.edx.org sites is included in this file.
+
+.. remove this paragraph ^ when weekly file is removed.
+
+.. important:: The ``{org}-{site}-events-{date}.log.gz.gpg`` file is designed to replace the ``{date}-{org}-tracking.tar`` file in your data package. Both files will be produced for several weeks, and then production of the ``{date}-{org}-tracking.tar`` file will be discontinued.
 
 .. remove this paragraph ^ when weekly file is removed.
 
@@ -53,10 +60,10 @@ Contents`.
 Database Data
 ==================
 
-The ``{org}-{date}.zip`` file contains views on database tables. A new file is
-available each week. Database data as of the time of the export, for all of an
-organization's courses on both the edx.org and edge.edx.org. sites, is included
-in this file.
+The ``{org}-{date}.zip`` file contains views on database tables. This file
+includes data as of the time of the export, for all of an organization's
+courses on both the edx.org and edge.edx.org. sites. A new file is available
+every week, representing the database at that point in time.
 
 For a partner organization named UniversityX, each weekly file is identified by
 the organization name and its extraction date: for example,
@@ -71,16 +78,17 @@ Contents`.
 Amazon S3 Buckets and Directories
 ********************************************
 
+You download the files in your data package from the Amazon S3 storage service.
 Data package files are located in two different buckets on Amazon S3:
 
 * The **edx-course-data** bucket contains the daily
   ``{org}-{site}-events-{date}.log.gz.gpg`` files of course event data.
   
-* The **course-data** bucket contains the weekly ``{date}-{org}-tracking.tar``
-  file of cumulative course event data and the weekly ``{org}-{date}.zip``
-  database snapshot.
+* The **course-data** bucket contains the weekly ``{org}-{date}.zip`` database
+  snapshot. It also contains the weekly ``{date}-{org}-tracking.tar`` file of
+  cumulative course event data (while this file remains available).
 
-.. revise this paragraph ^ when weekly event file is removed.
+.. remove the last sentence ^ when weekly event file is removed.
 
 For information about accessing Amazon S3, see :ref:`Access Amazon S3`.
 
@@ -94,9 +102,9 @@ Download Data Packages from Amazon S3
    Interface. For information about connecting to Amazon S3, see :ref:`Access
    Amazon S3`.
 
-#. To download daily event files, you navigate to the **edx-course-data**
-   bucket, and then through this directory structure to locate the files you
-   want to download:
+#. To download daily event files, open the **edx-course-data** bucket, and then
+   navigate through the following directory structure to locate the files that
+   you want:
 
    ``{org}/{site}/events/{year}``
 
@@ -115,7 +123,7 @@ Download Data Packages from Amazon S3
 
 #. Download the ``{org}-{date}.zip`` file. 
 
-#. To download a cumulative weekly event file, return to the **course-data**
+#. To download a weekly, cumulative event file, return to the **course-data**
    bucket. This bucket contains the ``{date}-{org}-tracking.tar`` files, which
    are available each week.
 
@@ -129,23 +137,23 @@ Download Data Packages from Amazon S3
 Data Package Contents
 **********************
 
-After you download your data package files, you must extract and decrypt the
-contents. Each of the files you download contains one or more files of research
-data.
+Each of the files you download contains one or more files of research data.
 
-============================================================
-Extracted Contents of ``{org}-{site}-events-{date}.gpg``
-============================================================
+================================================================
+Extracted Contents of ``{org}-{site}-events-{date}.log.gz.gpg``
+================================================================
 
-The ``{org}-{site}-events-{date}.gpg`` file contains event data for a single
-day. After you download a ``{org}-{site}-events-{date}.gpg`` file for your
-institution, you:
+The ``{org}-{site}-events-{date}.log.gz.gpg`` file contains all event data for
+courses on a single edX site for one 24-hour period. After you download a
+``{org}-{site}-events-{date}.log.gz.gpg`` file for your institution, you:
 
-#. Use your private key to decrypt the downloaded .gpg file. See :ref:`Decrypt
-   an Encrypted File`.
+#. Use your private key to decrypt the file. See :ref:`Decrypt an Encrypted
+   File`.
 
-#. Extract the log file from the compressed .gz file. The result is a single
-   file named ``{org}-{site}-events-{date}.log``.
+#. (Optional) Extract the log file from the compressed .gz file. The result is
+   a single file named ``{org}-{site}-events-{date}.log``.
+
+.. per Carlos, ^ "The files can be processed while compressed" but no info yet on how that is accomplished. Added "optional"
 
 .. remove this section v through the next note when weekly file is removed
 
@@ -156,15 +164,15 @@ Extracted Contents of ``{date}-{org}-tracking.tar``
 The ``{date}-{org}-tracking.tar`` file contains cumulative event data for all
 of an organization's courses, running on both edx.org and edge.edx.org.
 
-.. note:: Over time, these files can become very large (25GB and larger). In some environments, problems such as session timeouts can occur when you download them. 
+.. note:: Over time, these cumulative files could become very large (25GB and larger) and difficult for many data czars to download without encountering session timeouts and other problems. As a result, this file will be superseded by the daily ``{org}-{site}-events-{date}.log.gz.gpg`` files in the **edx-course-data** bucket.
 
 After you download the ``{date}-{org}-tracking.tar`` file for your
 institution, you:
 
-#. Extract the contents of the downloaded .tar file. 
-   
+#. Extract the contents of the downloaded .tar file.
+
    To balance the load of traffic to edX courses, every course is served by
-   multiple edX servers. When you extract the contents of this file, a separate
+   multiple edX servers. A different set of servers handles traffic for the two edX sites: edx.org ("prod") and edge.edx.org ("edge"). When you extract the contents of this file, a separate
    subdirectory is created for events that took place on each edX server.
 
    For example, subdirectories with these names can be created:
@@ -175,8 +183,11 @@ institution, you:
 
    ``prod-edxapp-005``
 
-   Each of these directories contains an encrypted log file of event data for
-   every day that events occurred on that server. These event tracking data
+   You use these subdirectory names to identify the site on which events took
+   place.
+
+   Each of these subdirectories contains an encrypted log file of event data
+   for every day that events occurred on that server. These event tracking data
    files are named ``{date}-{org}.log.gpg``.
 
 #. Use your private key to decrypt the extracted log files. See :ref:`Decrypt
@@ -220,8 +231,8 @@ following set of sql and mongo database files.
 
 ``{org}-{course}-{date}-courseware_studentmodule-{site}-analytics.sql``
 
-  The courseware state for each student, with a separate row for each piece of
-  course content that the student accesses. No file is produced for courses
+  The courseware state for each student, with a separate row for each item in
+  the course content that the student accesses. No file is produced for courses
   that do not have any records in this table (for example, recently created
   courses). See :ref:`courseware_studentmodule`.
 
