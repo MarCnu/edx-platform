@@ -38,6 +38,7 @@ from contentstore.utils import (
     reverse_course_url,
     reverse_usage_url,
     reverse_url,
+    remove_all_instructors,
 )
 from models.settings.course_details import CourseDetails, CourseSettingsEncoder
 from models.settings.course_grading import CourseGradingModel
@@ -62,6 +63,7 @@ from student.roles import (
 )
 from student import auth
 from course_action_state.models import CourseRerunState, CourseRerunUIStateManager
+from course_action_state.managers import CourseActionStateItemNotFoundError
 
 from microsite_configuration import microsite
 
@@ -70,6 +72,7 @@ __all__ = ['course_info_handler', 'course_handler', 'course_info_update_handler'
            'settings_handler',
            'grading_handler',
            'advanced_settings_handler',
+           'course_notifications_handler',
            'textbooks_list_handler', 'textbooks_detail_handler',
            'group_configurations_list_handler', 'group_configurations_detail_handler']
 
@@ -93,6 +96,71 @@ def _get_course_module(course_key, user, depth=0):
         raise PermissionDenied()
     course_module = modulestore().get_course(course_key, depth=depth)
     return course_module
+
+
+@login_required
+def course_notifications_handler(request, course_key_string=None, action_state_id=None):
+    """
+    Handle incoming requests for notifications in a RESTful way
+    """
+    response_format = request.REQUEST.get('format', 'html')
+
+    # ensure that we have a course and an action state
+    if not course_key_string or not action_state_id:
+        return HttpResponseBadRequest()
+
+    course_key = CourseKey.from_string(course_key_string)
+
+    if response_format == 'json' or 'application/json' in request.META.get('HTTP_ACCEPT', 'application/json'):
+        if not has_course_access(request.user, course_key):
+            raise PermissionDenied()
+        if request.method == 'GET':
+            return _course_notifications_json_get(action_state_id)
+        elif request.method == 'POST':
+            # we assume any post requests dismiss actions from the UI
+            return _dismiss_notification(request, action_state_id)
+        elif request.method == 'PUT':
+            raise NotImplementedError()
+        elif request.method == 'DELETE':
+            raise NotImplementedError()
+        else:
+            return HttpResponseBadRequest()
+    else:
+        return HttpResponseNotFound()
+
+
+def _course_notifications_json_get(course_action_state_id):
+    """
+    Return the action and the action state for the given id
+    """
+    try:
+        action_state = CourseRerunState.objects.find_first(id=course_action_state_id)
+    except CourseActionStateItemNotFoundError:
+        return HttpResponseBadRequest()
+
+    action_state_info = {
+        'action': action_state.action,
+        'state': action_state.state,
+        'should_display': action_state.should_display
+    }
+    return JsonResponse(action_state_info)
+
+
+def _dismiss_notification(request, course_action_state_id):
+    """
+    Update the display of the course notification
+    """
+    CourseRerunState.objects.update_should_display(course_action_state_id, request.user, False)
+    try:
+        action_state = CourseRerunState.objects.find_first(id=course_action_state_id)
+    except CourseActionStateItemNotFoundError:
+        return HttpResponseBadRequest()
+
+    # remove all instructors
+    if action_state.state == CourseRerunUIStateManager.State.FAILED:
+        remove_all_instructors(action_state.course_key)
+
+    return JsonResponse({'success': True})
 
 
 # pylint: disable=unused-argument
@@ -297,6 +365,11 @@ def course_index(request, course_key):
     lms_link = get_lms_link_for_item(course_module.location)
     sections = course_module.get_children()
 
+    try:
+        current_action = CourseRerunState.objects.find_first(course_key=course_key, should_display=True)
+    except (ItemNotFoundError, CourseActionStateItemNotFoundError):
+        current_action = None
+
     return render_to_response('overview.html', {
         'context_course': course_module,
         'lms_link': lms_link,
@@ -307,7 +380,9 @@ def course_index(request, course_key):
         'new_section_category': 'chapter',
         'new_subsection_category': 'sequential',
         'new_unit_category': 'vertical',
-        'category': 'vertical'
+        'category': 'vertical',
+        'should_display_rerun_notification': current_action.should_display if current_action else False,
+        'rerun_notification_id': current_action.id if current_action else None,
     })
 
 
