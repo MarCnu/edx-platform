@@ -160,7 +160,7 @@ def _section_course_info(course_key, access):
         'access': access,
         'course_id': course_key,
         'course_display_name': course.display_name,
-        'enrollment_count': CourseEnrollment.num_enrolled_in(course_key),
+        'enrollment_count': CourseEnrollment.enrollment_counts(course_key),
         'has_started': course.has_started(),
         'has_ended': course.has_ended(),
         'list_instructor_tasks_url': reverse('list_instructor_tasks', kwargs={'course_id': course_key.to_deprecated_string()}),
