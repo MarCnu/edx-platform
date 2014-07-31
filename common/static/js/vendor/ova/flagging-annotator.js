@@ -49,9 +49,6 @@ Annotator.Plugin.Flagging = (function(_super) {
             submit: this.submitField,
         });
         
-        // add a class for this field to find it later. 
-        $(this.field).addClass('annotator-flagging');
-        
         // -- Viewer
         var newview = this.annotator.viewer.addField({
             load: this.updateViewer,
@@ -93,22 +90,23 @@ Annotator.Plugin.Flagging = (function(_super) {
         if(Catch.options.instructor_email === user_email && totalFlags > 0){
             // Translators: 'totalFlags' is the number of flags solely for that annotation
             var message = ngettext("Check the box to remove %(totalFlags)s flag.", "Check the box to remove %(totalFlags)s flags.", totalFlags);
-            $('.annotator-flagging label')[0].innerHTML = interpolate(message, {totalFlags : totalFlags}, true);
+            $(field).find('label')[0].innerHTML = interpolate(message, {totalFlags : totalFlags}, true);
             this.activeAnnotation = annotation;
             
             // add function to change the text when the user checks the box or removes the check
-            $('.annotator-flagging input').change(function(evt){
-                if(!$('.annotator-flagging input:checkbox:checked').val()){
+            $(field).find('input').change(function(evt){
+                if(!$(field).find('input:checkbox:checked').val()){
                     var count = self.getTotalFlaggingTags(self.activeAnnotation);
                     // Translators: 'count' is the number of flags solely for that annotation that will be removed
                     var message = ngettext("Check the box to remove %(count)s flag.", "Check the box to remove %(count)s flags.", count)
-                    $('.annotator-flagging label')[0].innerHTML = interpolate(message, {count: count}, true);
+                    $(field).find('label')[0].innerHTML = interpolate(message, {count: count}, true);
                 } else {
-                    $('.annotator-flagging label')[0].innerHTML = gettext("All flags have been removed. To undo, uncheck the box.");
+                    $(field).find('label')[0].innerHTML = gettext("All flags have been removed. To undo, uncheck the box.");
                 }
             });
+            $(field).show();
         } else {
-            $(field).remove();
+            $(field).hide();
         }
     }
     
@@ -119,7 +117,7 @@ Annotator.Plugin.Flagging = (function(_super) {
      */
     Flagging.prototype.submitField = function(field, annotation) {
         // if the user did not check the box go back and input all of the tags. 
-        if (!$('.annotator-flagging input:checkbox:checked').val()){
+        if (!$(field).find('input:checkbox:checked').val()){
             annotation.tags = this.mixedTags;
         }
     }
@@ -166,8 +164,8 @@ Annotator.Plugin.Flagging = (function(_super) {
             var message = gettext("Report annotation as inappropriate or offensive.");
             fieldControl.prepend('<button title="' + message + '" class="flag-icon" id="' + annotation.id + '">');
             
-            var flagEl = fieldControl.find('.flag-icon#' + annotation.id),
-                self = this;
+            var flagEl = fieldControl.find('.flag-icon#' + annotation.id);
+            var self = this;
             
             // sets function to flag after next click
             flagEl.click(function(){self.flagAnnotation(annotation,user,flagEl,field)});
