@@ -17,7 +17,6 @@ require(["domReady", "jquery", "underscore", "js/utils/cancel_on_escape"],
             );
 
             if (errors) {
-                alert('errors');
                 return;
             }
 
@@ -34,7 +33,6 @@ require(["domReady", "jquery", "underscore", "js/utils/cancel_on_escape"],
                 'display_name': display_name,
                 'run': run
             });
-            alert('About to rerun');
             $.postJSON('/course/', {
                     'source_course_key': source_course_key,
                     'org': org,
@@ -45,23 +43,33 @@ require(["domReady", "jquery", "underscore", "js/utils/cancel_on_escape"],
                 function (data) {
                     if (data.url !== undefined) {
                         window.location = data.url;
-                        alert('success');
                     } else if (data.ErrMsg !== undefined) {
-                        $('.wrap-error').addClass('is-shown');
+                        $('.wrapper-error').addClass('is-shown').removeClass('is-hidden');
                         $('#course_rerun_error').html('<p>' + data.ErrMsg + '</p>');
-                        $('.new-course-save').addClass('is-disabled');
-                        alert('failure');
-                    }
-                    else {
-                        alert(data.ErrMsg)
+                        $('.rerun-course-save').addClass('is-disabled');
                     }
                 }
             );
-
+            // Go into creating re-run state
+            $('.rerun-course-save').addClass('is-disabled').addClass('is-processing').html(
+                gettext('Processing Re-run Request')
+            );
+            $('.action-cancel').addClass('is-hidden')
         };
 
         var cancelRerunCourse = function (e) {
             e.preventDefault();
+            // Clear out existing fields and errors
+            _.each(
+                ['.rerun-course-name', '.rerun-course-org', '.rerun-course-number', '.rerun-course-run'],
+                function (field) {
+                    $(field).val('');
+                }
+            );
+            $('#course_rerun_error').html('');
+            $('wrapper-error').removeClass('is-shown').addClass('is-hidden');
+            $('.rerun-course-save').off('click');
+            window.location.href = '/course/'
         };
 
         var validateRequiredField = function (msg) {

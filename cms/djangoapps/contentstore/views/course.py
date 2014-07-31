@@ -428,6 +428,10 @@ def _rerun_course(request, destination_course_key, fields):
     if not has_course_access(request.user, source_course_key):
         raise PermissionDenied()
 
+    # verify org course and run don't already exist
+    if modulestore().has_course(destination_course_key):
+        raise InvalidLocationError
+
     # Make sure user has instructor and staff access to the destination course
     # so the user can see the updated status for that course
     add_instructor(destination_course_key, request.user, request.user)
