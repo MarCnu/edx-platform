@@ -283,9 +283,22 @@ def course_listing(request):
             course.display_name,
             reverse_course_url('course_handler', course.id),
             get_lms_link_for_item(course.location),
+            _get_rerun_link_for_item(course.id),
             course.display_org_with_default,
             course.display_number_with_default,
             course.location.name
+        )
+
+    def format_unsucceeded_course_for_view(uca, course):
+        """
+        return tuple of the data which the view requires for each unsucceeded course
+        """
+        return (
+            course.display_name,
+            course.display_org_with_default,
+            course.display_number_with_default,
+            course.location.name,
+
         )
 
     # remove any courses in courses that are also in the unsucceeded_course_actions list
@@ -304,6 +317,10 @@ def course_listing(request):
         'course_creator_status': _get_course_creator_status(request.user),
         'allow_unicode_course_id': settings.FEATURES.get('ALLOW_UNICODE_COURSE_ID', False)
     })
+
+
+def _get_rerun_link_for_item(course_key):
+    return '/course_rerun/{}/{}/{}'.format(course_key.org, course_key.course, course_key.run)
 
 
 @login_required

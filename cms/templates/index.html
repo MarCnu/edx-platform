@@ -134,6 +134,7 @@ require(["domReady!", "jquery", "jquery.form", "js/index"], function(doc, $) {
       %if len(courses) > 0:
       <div class="courses">
         <ul class="list-courses">
+<<<<<<< HEAD
           <!-- STATE: course can be re-run -->
           <li class="course-item can-rerun">
             <a class="course-link" href="#">
@@ -163,6 +164,9 @@ require(["domReady!", "jquery", "jquery.form", "js/index"], function(doc, $) {
             </ul>
           </li>
           %for course, url, lms_link, org, num, run in sorted(courses, key=lambda s: s[0].lower() if s[0] is not None else ''):
+=======
+          %for course, url, lms_link, rerun_link, org, num, run in sorted(courses, key=lambda s: s[0].lower() if s[0] is not None else ''):
+>>>>>>> f1aa81f... enabled re-run button on My Courses page
           <li class="course-item">
             <a class="course-link" href="${url}">
               <h3 class="course-title">${course}</h3>
@@ -182,12 +186,27 @@ require(["domReady!", "jquery", "jquery.form", "js/index"], function(doc, $) {
             </a>
 
             <ul  class="item-actions course-actions">
+<<<<<<< HEAD
               <li class="action">
                 <a href="${lms_link}" rel="external" class="button view-button view-live-button">${_("View Live")}</a>
+=======
+              % if course_creator_status=='granted':
+              <li class="action action-rerun">
+                <a href="${rerun_link}" rel="external" class="button rerun-button">${_("Re-run Course")}</a>
+              </li>
+              % endif
+              <li class="action action-view">
+                <a href="${lms_link}" rel="external" class="button view-button">${_("View Live")}</a>
+>>>>>>> f1aa81f... enabled re-run button on My Courses page
               </li>
             </ul>
           </li>
           %endfor
+          % if course_creator_status=='granted':
+          <script type="text/javascript">
+              $('.course-item').addClass('can-rerun');
+          </script>
+          % endif
         </ul>
       </div>
 
