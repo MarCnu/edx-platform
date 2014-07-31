@@ -4,93 +4,96 @@ var _ref,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 Annotator.Plugin.Flagging = (function(_super) {
-	__extends(Flagging, _super);
-	
-	//If you do not have options, delete next line and the parameters in the declaration function
+    __extends(Flagging, _super);
+    
     Flagging.prototype.options = null;
-	
-    //declaration function, remember to set up submit and/or update as necessary, if you don't have
-    //options, delete the options line below.
-	function Flagging(element,options) {
-		this.updateViewer = __bind(this.updateViewer, this);
-		this.updateField = __bind(this.updateField, this);
-		this.submitField = __bind(this.submitField, this);
+    
+    // declaration function, remember to set up submit and/or update as necessary, if you don't have
+    // options, delete the options line below.
+    function Flagging(element,options) {
+        this.updateViewer = __bind(this.updateViewer, this);
+        this.updateField = __bind(this.updateField, this);
+        this.submitField = __bind(this.submitField, this);
         this.flagAnnotation = __bind(this.flagAnnotation, this);
         this.unflagAnnotation = __bind(this.unflagAnnotation, this);
         this.getTotalFlaggingTags = __bind(this.getTotalFlaggingTags, this);
         this.options = options;
-		_ref = Flagging.__super__.constructor.apply(this, arguments);
-		return _ref;
-	}
-	
-    //example variables to be used to receive input in the annotator view
-	Flagging.prototype.field = null;
-	Flagging.prototype.input = null;
+        _ref = Flagging.__super__.constructor.apply(this, arguments);
+        return _ref;
+    }
+    
+    // variables to be used to receive input in the annotator view
+    Flagging.prototype.field = null;
+    Flagging.prototype.input = null;
     Flagging.prototype.hasPressed = false;
     Flagging.prototype.activeAnnotation = null;
     Flagging.prototype.mixedTags = null;
     
-    //this function will initialize the plug in. Create your fields here in the editor and viewer.
+    // this function will initialize the plug-in
     Flagging.prototype.pluginInit = function() {
-		console.log("Flagging-pluginInit");
-		//Check that annotator is working
-		if (!Annotator.supported()) {
-			return;
-		}
-		//-- Editor
-		var self = this;
-		this.field = this.annotator.editor.addField({
+        console.log("Flagging-pluginInit");
+        
+        // Check that annotator is working
+        if (!Annotator.supported()) {
+            return;
+        }
+        
+        // -- Editor
+        //creates a checkbox to remove all flags
+        var self = this;
+        this.field = this.annotator.editor.addField({
             type: 'checkbox',
             load: this.updateField,
             label: Annotator._t('Check the box to remove all flags.'),
             submit: this.submitField,
         });
         
-        //add a class for this field to find it later. 
+        // add a class for this field to find it later. 
         $(this.field).addClass('annotator-flagging');
-		
-		//-- Viewer
-		var newview = this.annotator.viewer.addField({
-			load: this.updateViewer,
-		});
+        
+        // -- Viewer
+        var newview = this.annotator.viewer.addField({
+            load: this.updateViewer,
+        });
 
-		return this.input = $(this.field).find(':input');
-	};
-	
-	/**
-	 * Gets the total number of tags associated with the flagging tool.
-	 * @param {Object} annotation Annotation item from Annotator.
-	 */
-	Flagging.prototype.getTotalFlaggingTags = function(annotation){
-        var tags = annotation.tags.slice();
-        //Goes through and gets the number of tags that contained the keyword "flagged"
+        return this.input = $(this.field).find(':input');
+    };
+    
+    /**
+     * Gets the total number of tags associated with the flagging tool.
+     * @param {Object} annotation Annotation item from Annotator.
+     */
+    Flagging.prototype.getTotalFlaggingTags = function(annotation){
+        var tags = (typeof annotation.tags !== 'undefined') ? annotation.tags.slice() : [];
+        // Goes through and gets the number of tags that contained the keyword "flagged"
         return $.grep(tags, function(tag, index){
             return (tag.indexOf('flagged') !== -1);
         }).length;
     }
-	
-	/**
-	 * Creates a new field in the editor in order to delete the flagged tags.
-	 * @param {HTMLElement} field The HTML element contained in the editor reserved for flagging.
-	 * @param {Object} annotation Annotation item from Annotator.
-	 */
+    
+    /**
+     * Creates a new field in the editor in order to delete the flagged tags.
+     * @param {HTMLElement} field The HTML element contained in the editor reserved for flagging.
+     * @param {Object} annotation Annotation item from Annotator.
+     */
     Flagging.prototype.updateField = function(field, annotation) {
-        //figure out whether annotation is of image or not
+        
+        // figure out whether annotation is of image or not
         var user_email = annotation.media === "image" ? 
                             osda.options.optionsAnnotator.permissions.user.id:
                             ova.options.optionsAnnotator.permissions.user.id;
         
-        //get total number of flag tags as well as save a copy of the mixed tags
+        // get total number of flag tags as well as save a copy of the mixed tags
         var totalFlags = this.getTotalFlaggingTags(annotation);   
         this.mixedTags = annotation.tags;     
         var self = this;
         
-        //only show this field if you are an instructor and there are flags to remove
+        // only show this field if you are an instructor and there are flags to remove
         if(Catch.options.instructor_email === user_email && totalFlags > 0){
             $('.annotator-flagging label')[0].innerHTML = "Check the box to remove " + totalFlags + " flag(s).";
             this.activeAnnotation = annotation;
             
-            //add function to change the text when the user checks the box or removes the check
+            // add function to change the text when the user checks the box or removes the check
             $('.annotator-flagging input').change(function(evt){
                 if(!$('.annotator-flagging input:checkbox:checked').val()){
                     $('.annotator-flagging label')[0].innerHTML = "Check the box to remove " + self.getTotalFlaggingTags(self.activeAnnotation) + " flag(s).";
@@ -106,10 +109,10 @@ Annotator.Plugin.Flagging = (function(_super) {
     /**
      * Makes last-minute changes to the annotation right before it is saved in the server.
      * @param {HTMLElement} field The HTML element contained in the editor reserved for flagging.
-	 * @param {Object} annotation Annotation item from Annotator.     
-	 */
+     * @param {Object} annotation Annotation item from Annotator.     
+     */
     Flagging.prototype.submitField = function(field, annotation) {
-        //if the user did not check the box go back and input all of the tags. 
+        // if the user did not check the box go back and input all of the tags. 
         if (!$('.annotator-flagging input:checkbox:checked').val()){
             annotation.tags = this.mixedTags;
         }
@@ -119,12 +122,13 @@ Annotator.Plugin.Flagging = (function(_super) {
      * The following allows you to edit the annotation popup when the viewer has already
      * hit submit and is just viewing the annotation.
      * @param {HTMLElement} field The HTML element contained in the editor reserved for flagging.
-	 * @param {Object} annotation Annotation item from Annotator.
-	 */
-	Flagging.prototype.updateViewer = function(field, annotation) {
-		var self = this;
+     * @param {Object} annotation Annotation item from Annotator.
+     */
+    Flagging.prototype.updateViewer = function(field, annotation) {
+        var self = this;
         this.hasPressed = false;
-        //perform routine to check if user has pressed the button before
+        
+        // perform routine to check if user has pressed the button before
         var tags = typeof annotation.tags != 'undefined'?annotation.tags:[];
         var user = this.annotator.plugins.Permissions.user.id;
         tags.forEach(function(t){
@@ -135,16 +139,29 @@ Annotator.Plugin.Flagging = (function(_super) {
                 
             }
         });
+
+        // changes display based on check done above
         var fieldControl = $(this.annotator.viewer.element.find('.annotator-controls')).parent();
         if (this.hasPressed) {
-			fieldControl.prepend('<button title="You have already reported this annotation." class="flag-icon-used">');
-            var flagEl = fieldControl.find('.flag-icon-used'),
-                self = this;
+
+            // make sure to use id when searching for the item so that only one of them gets changed
+            fieldControl.prepend('<button title="You have already reported this annotation." class="flag-icon-used" id="' + annotation.id + '">');
+            
+            var flagEl = fieldControl.find('.flag-icon-used#' + annotation.id);
+            var self = this;
+            
+            // sets function to unflag after next click
             flagEl.click(function(){self.unflagAnnotation(annotation,user,flagEl,field)});
+        
         } else{
-            fieldControl.prepend('<button title="Report annotation as inappropriate or offensive." class="flag-icon">');
-            var flagEl = fieldControl.find('.flag-icon'),
+            
+            // likewise, make sure to use id when searching for the item so that only one is changed
+            fieldControl.prepend('<button title="Report annotation as inappropriate or offensive." class="flag-icon" id="' + annotation.id + '">');
+            
+            var flagEl = fieldControl.find('.flag-icon#' + annotation.id),
                 self = this;
+            
+            // sets function to flag after next click
             flagEl.click(function(){self.flagAnnotation(annotation,user,flagEl,field)});
         }
         
@@ -152,33 +169,59 @@ Annotator.Plugin.Flagging = (function(_super) {
                             osda.options.optionsAnnotator.permissions.user.id:
                             ova.options.optionsAnnotator.permissions.user.id;
         var totalFlags = this.getTotalFlaggingTags(annotation);
-        //only show the number of times an annotation has been flagged if they are the instructors
+        
+        // only show the number of times an annotation has been flagged if they are the instructors
         if(Catch.options.instructor_email === user_email && totalFlags > 0){
             $(field).append("<div class=\"flag-count\">This annotation has " + totalFlags + " flag(s).</div>");
         } else {
-            $(field).remove();//remove the empty div created by annotator
+            $(field).remove(); // remove the empty div created by annotator
         }
     }
     
+    /**
+     * This function changes the visual aspects of flagging an Annotation and sends changes
+     * to the database backend.
+     */
     Flagging.prototype.flagAnnotation = function(annotation, userId, flagElement, field) {
+        
+        // changes the class and title to show user's flagging action worked
         flagElement.attr("class","flag-icon-used");
         flagElement.attr("title","You have already reported this annotation.");
+
+        // it adds the appropriate tag with the user name to make sure it is added
         if (typeof annotation.tags == 'undefined') {
             annotation.tags = ['flagged-'+userId];
         } else{
             annotation.tags.push("flagged-"+userId);
         }
+
+        // annotation gets updated and a warning is published that an annotation has been flagged
         this.annotator.plugins['Store'].annotationUpdated(annotation);
         this.annotator.publish("flaggedAnnotation",[field,annotation]);
         
+        // now that it is flagged, it sets the click function to unflag
+        flagElement.click(function(){self.unflagAnnotation(annotation,userId,flagElement,field)});
     }
     
+    /**
+     * This function changes the visual aspects of unflagging an Annotation and sends changes
+     * to the database backend.
+     */
     Flagging.prototype.unflagAnnotation = function(annotation, userId, flagElement, field) {
+        
+        // changes the class and title to show user's unflagging action worked
         flagElement.attr("class", "flag-icon");
         flagElement.attr("title","Report annotation as inappropriate or offensive.");
+        
+        // it removes the tag that signifies flagging
         annotation.tags.splice(annotation.tags.indexOf('flagged-'+userId));
+        
+        // annotation gets updated without the tag and a warning is published that flagging is changed
         this.annotator.plugins['Store'].annotationUpdated(annotation);
         this.annotator.publish("flaggedAnnotation",[field,annotation]);
+        
+        // now that it is unflagged, it sets the click function to flag
+        flagElement.click(function(){self.unflagAnnotation(annotation,userId,flagElement,field)});
     }
     
     return Flagging;
