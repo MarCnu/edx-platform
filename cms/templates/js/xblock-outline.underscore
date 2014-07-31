@@ -6,7 +6,8 @@
     <div class="wrapper-xblock-header">
         <div class="wrapper-xblock-header-primary">
             <% if (includesChildren) { %>
-                <h3 class="xblock-title expand-collapse <%= isCollapsed ? 'expand' : 'collapse' %>" title="<%= gettext('Collapse/Expand this Checklist') %>">
+                <h3 class="xblock-title expand-collapse <%= isCollapsed ? 'expand' : 'collapse' %>"
+                    title="<%= interpolate(gettext('Collapse/Expand this %(xblock_type)s'), { xblock_type: xblockTypeDisplayName }, true) %>">
                     <i class="icon-caret-down ui-toggle-expansion"></i>
             <% } else { %>
                 <h3 class="xblock-title">

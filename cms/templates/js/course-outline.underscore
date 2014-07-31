@@ -37,7 +37,8 @@ if (statusType === 'warning') {
 
     <div class="<%= xblockType %>-header">
         <% if (includesChildren) { %>
-            <h3 class="<%= xblockType %>-header-details expand-collapse <%= isCollapsed ? 'expand' : 'collapse' %> ui-toggle-expansion" title="<%= gettext('Collapse/Expand this Checklist') %>">
+            <h3 class="<%= xblockType %>-header-details expand-collapse <%= isCollapsed ? 'expand' : 'collapse' %> ui-toggle-expansion"
+                title="<%= interpolate(gettext('Collapse/Expand this %(xblock_type)s'), { xblock_type: xblockTypeDisplayName }, true) %>">
                 <i class="icon-caret-down icon"></i>
         <% } else { %>
             <h3 class="<%= xblockType %>-header-details">
