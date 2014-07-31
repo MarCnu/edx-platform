@@ -38,7 +38,7 @@ define(["jquery", "underscore", "gettext", "js/views/baseview", "js/views/utils/
             },
 
             shouldRefresh: function(model) {
-                return ViewUtils.hasChangedAttributes(model, ['currently_visible_to_students']);
+                return ViewUtils.hasChangedAttributes(model, ['currently_visible_to_students', 'has_changes']);
             },
 
             render: function() {
