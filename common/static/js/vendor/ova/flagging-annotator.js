@@ -44,7 +44,8 @@ Annotator.Plugin.Flagging = (function(_super) {
         this.field = this.annotator.editor.addField({
             type: 'checkbox',
             load: this.updateField,
-            label: Annotator._t('Check the box to remove all flags.'),
+            // Translators: please note that this is not a literal flag, but rather a report
+            label: Annotator._t(gettext('Check the box to remove all flags.')),
             submit: this.submitField,
         });
         
@@ -90,15 +91,20 @@ Annotator.Plugin.Flagging = (function(_super) {
         
         // only show this field if you are an instructor and there are flags to remove
         if(Catch.options.instructor_email === user_email && totalFlags > 0){
-            $('.annotator-flagging label')[0].innerHTML = "Check the box to remove " + totalFlags + " flag(s).";
+            // Translators: 'totalFlags' is the number of flags solely for that annotation
+            var message = ngettext("Check the box to remove %(totalFlags)s flag.", "Check the box to remove %(totalFlags)s flags.", totalFlags);
+            $('.annotator-flagging label')[0].innerHTML = interpolate(message, {totalFlags : totalFlags}, true);
             this.activeAnnotation = annotation;
             
             // add function to change the text when the user checks the box or removes the check
             $('.annotator-flagging input').change(function(evt){
                 if(!$('.annotator-flagging input:checkbox:checked').val()){
-                    $('.annotator-flagging label')[0].innerHTML = "Check the box to remove " + self.getTotalFlaggingTags(self.activeAnnotation) + " flag(s).";
+                    var count = self.getTotalFlaggingTags(self.activeAnnotation);
+                    // Translators: 'count' is the number of flags solely for that annotation that will be removed
+                    var message = ngettext("Check the box to remove %(count)s flag.", "Check the box to remove %(count)s flags.", count)
+                    $('.annotator-flagging label')[0].innerHTML = interpolate(message, {count: count}, true);
                 } else {
-                    $('.annotator-flagging label')[0].innerHTML = "Flags have been removed. To undo, uncheck the box.";
+                    $('.annotator-flagging label')[0].innerHTML = gettext("All flags have been removed. To undo, uncheck the box.");
                 }
             });
         } else {
@@ -145,7 +151,8 @@ Annotator.Plugin.Flagging = (function(_super) {
         if (this.hasPressed) {
 
             // make sure to use id when searching for the item so that only one of them gets changed
-            fieldControl.prepend('<button title="You have already reported this annotation." class="flag-icon-used" id="' + annotation.id + '">');
+            var message = gettext("You have already reported this annotation.");
+            fieldControl.prepend('<button title="' + message + '" class="flag-icon-used" id="' + annotation.id + '">');
             
             var flagEl = fieldControl.find('.flag-icon-used#' + annotation.id);
             var self = this;
@@ -156,7 +163,8 @@ Annotator.Plugin.Flagging = (function(_super) {
         } else{
             
             // likewise, make sure to use id when searching for the item so that only one is changed
-            fieldControl.prepend('<button title="Report annotation as inappropriate or offensive." class="flag-icon" id="' + annotation.id + '">');
+            var message = gettext("Report annotation as inappropriate or offensive.");
+            fieldControl.prepend('<button title="' + message + '" class="flag-icon" id="' + annotation.id + '">');
             
             var flagEl = fieldControl.find('.flag-icon#' + annotation.id),
                 self = this;
@@ -172,7 +180,9 @@ Annotator.Plugin.Flagging = (function(_super) {
         
         // only show the number of times an annotation has been flagged if they are the instructors
         if(Catch.options.instructor_email === user_email && totalFlags > 0){
-            $(field).append("<div class=\"flag-count\">This annotation has " + totalFlags + " flag(s).</div>");
+            // Translators: 'count' is the number of flags solely for that annotation
+            var message = ngettext("This annotation has %(count)s flag.","This annotation has %(count)s flags.", totalFlags);
+            $(field).append("<div class=\"flag-count\">" + interpolate(message, {count : totalFlags}, true) + "</div>");
         } else {
             $(field).remove(); // remove the empty div created by annotator
         }
@@ -186,7 +196,7 @@ Annotator.Plugin.Flagging = (function(_super) {
         
         // changes the class and title to show user's flagging action worked
         flagElement.attr("class","flag-icon-used");
-        flagElement.attr("title","You have already reported this annotation.");
+        flagElement.attr("title", gettext("You have already reported this annotation."));
 
         // it adds the appropriate tag with the user name to make sure it is added
         if (typeof annotation.tags == 'undefined') {
@@ -211,7 +221,7 @@ Annotator.Plugin.Flagging = (function(_super) {
         
         // changes the class and title to show user's unflagging action worked
         flagElement.attr("class", "flag-icon");
-        flagElement.attr("title","Report annotation as inappropriate or offensive.");
+        flagElement.attr("title", gettext("Report annotation as inappropriate or offensive."));
         
         // it removes the tag that signifies flagging
         annotation.tags.splice(annotation.tags.indexOf('flagged-'+userId));
