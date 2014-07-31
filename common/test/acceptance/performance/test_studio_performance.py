@@ -79,7 +79,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         """
         Produce a performance report for visiting the course outline page.
         """
-        har_name = 'perf-fixes/OutlinePage_{org}_{course}'.format(
+        har_name = 'OutlinePage_{org}_{course}'.format(
             org=course_outline_page.course_info['course_org'],
             course=course_outline_page.course_info['course_num']
         )
@@ -91,7 +91,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         """
         Produce a performance report for visiting a unit page.
         """
-        har_name = 'perf-fixes/UnitPage_{org}_{course}'.format(
+        har_name = 'UnitPage_{org}_{course}'.format(
             org=course_info['course_org'],
             course=course_info['course_num']
         )
@@ -113,7 +113,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         else:
             subsection = course_outline_page.section(section_title).subsection(original_subsection_title)
 
-        har_name = 'perf-fixes/OutlinePageUpdateSubsection_{org}_{course}'.format(
+        har_name = 'OutlinePageUpdateSubsection_{org}_{course}'.format(
             org=course_outline_page.course_info['course_org'],
             course=course_outline_page.course_info['course_num']
         )
@@ -139,7 +139,7 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         container_page = course_outline_page.section(section_title).subsection(subsection_title).toggle_expand().unit(current_unit_title).go_to()
         container_page.change_name(new_unit_title)
 
-        har_name = 'perf-fixes/UnitPagePublish_{org}_{course}'.format(
+        har_name = 'UnitPagePublish_{org}_{course}'.format(
             org=course_outline_page.course_info['course_org'],
             course=course_outline_page.course_info['course_num']
         )
