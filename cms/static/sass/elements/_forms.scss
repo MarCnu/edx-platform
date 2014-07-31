@@ -335,6 +335,11 @@ form[class^="create-"] {
   .incontext-editor-value,
   .incontext-editor-action-wrapper {
     display: inline-block;
+    max-width: 80%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    vertical-align: middle;
   }
 
   .incontext-editor-open-action {
