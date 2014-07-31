@@ -67,6 +67,7 @@ from microsite_configuration import microsite
 
 
 __all__ = ['course_info_handler', 'course_handler', 'course_info_update_handler',
+           'course_rerun_handler',
            'settings_handler',
            'grading_handler',
            'advanced_settings_handler',
@@ -141,6 +142,26 @@ def course_handler(request, course_key_string=None):
     else:
         return HttpResponseNotFound()
 
+
+@login_required
+@ensure_csrf_cookie
+@require_http_methods(["GET"])
+def course_rerun_handler(request, course_key_string):
+    """
+    The restful handler for course reruns.
+    GET
+        html: return html page with form to rerun a course for the given course id
+    """
+    course_key = CourseKey.from_string(course_key_string)
+    course_module = _get_course_module(course_key, request.user, depth=3)
+    if request.method == 'GET':
+        return render_to_response('course-create-rerun.html', {
+            'source_course_key': course_key,
+            'display_name': course_module.display_name,
+            'user': request.user,
+            'course_creator_status': _get_course_creator_status(request.user),
+            'allow_unicode_course_id': settings.FEATURES.get('ALLOW_UNICODE_COURSE_ID', False)
+        })
 
 @login_required
 def _course_json(request, course_key):

@@ -73,6 +73,7 @@ urlpatterns += patterns(
         'course_info_update_handler'
     ),
     url(r'^course/{}?$'.format(settings.COURSE_KEY_PATTERN), 'course_handler', name='course_handler'),
+    url(r'^course_rerun/{}$'.format(settings.COURSE_KEY_PATTERN), 'course_rerun_handler', name='course_rerun_handler'),
     url(r'^subsection/{}$'.format(settings.USAGE_KEY_PATTERN), 'subsection_handler'),
     url(r'^unit/{}$'.format(settings.USAGE_KEY_PATTERN), 'unit_handler'),
     url(r'^container/{}$'.format(settings.USAGE_KEY_PATTERN), 'container_handler'),
