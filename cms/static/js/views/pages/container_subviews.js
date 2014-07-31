@@ -43,7 +43,8 @@ define(["jquery", "underscore", "gettext", "js/views/baseview", "js/views/utils/
 
             render: function() {
                 this.$el.html(this.template({
-                    currentlyVisibleToStudents: this.model.get('currently_visible_to_students')
+                    currentlyVisibleToStudents: this.model.get('currently_visible_to_students'),
+                    hasChanges: this.model.get('has_changes')
                 }));
                 return this;
             }

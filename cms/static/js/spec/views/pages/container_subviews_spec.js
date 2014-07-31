@@ -500,25 +500,37 @@ define(["jquery", "underscore", "underscore.string", "js/spec_helpers/create_sin
 
             describe("Message Area", function() {
                 var messageSelector = '.container-message .warning',
-                    warningMessage = 'This content is live for students. Edit with caution.';
+                    unchangedWarningMessage = 'This unit is visible to students. If you edit the unit, you must re-publish it for students to see your changes.',
+                    hasChangesWarningMessage = 'Caution: The last published version of this unit is live. By publishing changes you will change the student experience.';
 
                 it('is empty for a unit that is not currently visible to students', function() {
                     renderContainerPage(this, mockContainerXBlockHtml, {
-                        currently_visible_to_students: false
+                        currently_visible_to_students: false,
+                        has_changes: false
                     });
                     expect(containerPage.$(messageSelector).text().trim()).toBe('');
                 });
 
-                it('shows a message for a unit that is currently visible to students', function() {
+                it('shows a message for a unit that is currently visible to students and is unchanged', function() {
                     renderContainerPage(this, mockContainerXBlockHtml, {
-                        currently_visible_to_students: true
+                        currently_visible_to_students: true,
+                        has_changes: false
                     });
-                    expect(containerPage.$(messageSelector).text().trim()).toBe(warningMessage);
+                    expect(containerPage.$(messageSelector).text().trim()).toBe(unchangedWarningMessage);
+                });
+
+                it('shows a message for a unit that is currently visible to students and has changes', function() {
+                    renderContainerPage(this, mockContainerXBlockHtml, {
+                        currently_visible_to_students: true,
+                        has_changes: true
+                    });
+                    expect(containerPage.$(messageSelector).text().trim()).toBe(hasChangesWarningMessage);
                 });
 
                 it('hides the message when the unit is hidden from students', function() {
                     renderContainerPage(this, mockContainerXBlockHtml, {
-                        currently_visible_to_students: true
+                        currently_visible_to_students: true,
+                        has_changes: false
                     });
                     fetch({ currently_visible_to_students: false });
                     expect(containerPage.$(messageSelector).text().trim()).toBe('');
@@ -526,10 +538,11 @@ define(["jquery", "underscore", "underscore.string", "js/spec_helpers/create_sin
 
                 it('shows a message when a unit is made visible', function() {
                     renderContainerPage(this, mockContainerXBlockHtml, {
-                        currently_visible_to_students: false
+                        currently_visible_to_students: false,
+                        has_changes: false
                     });
                     fetch({ currently_visible_to_students: true });
-                    expect(containerPage.$(messageSelector).text().trim()).toBe(warningMessage);
+                    expect(containerPage.$(messageSelector).text().trim()).toBe(unchangedWarningMessage);
                 });
             });
         });
