@@ -367,6 +367,7 @@ def _create_new_course(request, course_key, fields):
     """
     Create a new course.
     Returns the URL for the course overview page.
+    Raises InvalidLocationError if the course already exists
     """
     # Set a unique wiki_slug for newly created courses. To maintain active wiki_slugs for
     # existing xml courses this cannot be changed in CourseDescriptor.
@@ -376,14 +377,16 @@ def _create_new_course(request, course_key, fields):
     definition_data = {'wiki_slug': wiki_slug}
     fields.update(definition_data)
 
-    # Creating the course raises InvalidLocationError if an existing course with this org/name is found
-    new_course = modulestore().create_course(
-        course_key.org,
-        course_key.course,
-        course_key.run,
-        request.user.id,
-        fields=fields,
-    )
+    store = modulestore()
+    with store.default_store(settings.FEATURES.get('DEFAULT_STORE_FOR_NEW_COURSE', 'mongo')):
+        # Creating the course raises InvalidLocationError if an existing course with this org/name is found
+        new_course = modulestore().create_course(
+            course_key.org,
+            course_key.course,
+            course_key.run,
+            request.user.id,
+            fields=fields,
+        )
 
     # Make sure user has instructor and staff access to the new course
     add_instructor(new_course.id, request.user, request.user)
