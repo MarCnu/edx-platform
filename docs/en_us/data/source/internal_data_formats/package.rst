@@ -102,13 +102,18 @@ Download Data Packages from Amazon S3
 
 You download the files in your data package from the Amazon S3 storage service.
 
-#. Connect to Amazon S3 using a third-party tool or the AWS Command Line
-   Interface. For information about connecting to Amazon S3, see :ref:`Access
-   Amazon S3`.
+==========================
+Download Daily Files
+==========================
 
-#. To download daily event files, open the **edx-course-data** bucket, and then
-   navigate through the following directory structure to locate the files that
-   you want:
+#. To download daily event files, use the AWS Command Line Interface or a
+   third-party tool to connect to the **edx-course-data** bucket on Amazon S3.
+
+   For information about providing your credentials to connect to Amazon S3,
+   see :ref:`Access Amazon S3`.
+
+#. Navigate the directory structure in the **edx-course-data** bucket to locate
+   the files that you want:
 
    ``{org}/{site}/events/{year}``
 
@@ -121,15 +126,26 @@ You download the files in your data package from the Amazon S3 storage service.
    separate log files are available for the "edx" site and the "edge" site.
    Repeat this step to download the file for the other site.
 
-4. To download a database data file, navigate to the edX **course-data**
-   bucket. This bucket contains ``{org}-{date}.zip`` files, which are
-   available each week. 
+============================
+Download Weekly Files
+============================
 
-#. Download the ``{org}-{date}.zip`` file. 
+.. note:: If you are using a third-party tool to connect to Amazon S3, you may not be able to navigate from one edX bucket to the other in a single session. You may need to disconnect from Amazon S3 and then reconnect to the other bucket.
 
-#. To download a weekly, cumulative event file, return to the **course-data**
-   bucket. This bucket contains the ``{date}-{org}-tracking.tar`` files, which
-   are available each week.
+#. To download a weekly database data file or cumulative event file, connect to
+   the edX **course-data** bucket on Amazon S3 using the AWS Command Line
+   Interface or a third-party tool.
+
+.. revise this sentence ^ when weekly event logs are no longer available
+
+   For information about providing your credentials to connect to Amazon S3,
+   see :ref:`Access Amazon S3`.
+
+#. Download the ``{org}-{date}.zip`` database data file from the **course-
+   data** bucket.
+
+   The **course-data** bucket also contains the weekly, cumulative
+   ``{date}-{org}-tracking.tar`` files.
 
 .. remove this step ^ when weekly event logs are no longer available
 
