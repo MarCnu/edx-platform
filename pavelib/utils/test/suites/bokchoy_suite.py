@@ -32,6 +32,7 @@ class BokChoyTestSuite(TestSuite):
         self.extra_args = kwargs.get('extra_args', '')
         self.ptests = kwargs.get('ptests', False)
         self.har_dir = self.log_dir / 'hars'
+        self.imports_dir = kwargs.get('imports_dir', None)
 
     def __enter__(self):
         super(BokChoyTestSuite, self).__enter__()
@@ -68,9 +69,8 @@ class BokChoyTestSuite(TestSuite):
             " common/test/db_fixtures/*.json"
         )
 
-        # TODO: Parameterize this as optional command-line argument
-        sh("./manage.py cms --settings=bok_choy import course_data 2013_Spring")
-        sh("./manage.py cms --settings=bok_choy import course_data PUB101")
+        if self.imports_dir:
+            sh("./manage.py cms --settings=bok_choy import {}".format(self.imports_dir))
 
         # Ensure the test servers are available
         msg = colorize('green', "Starting test servers...")
