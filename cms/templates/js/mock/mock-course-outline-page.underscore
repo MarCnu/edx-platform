@@ -22,7 +22,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" rel="external" class="button view-button view-live-button" title="This link will open in a new browser window/tab">View Live</a>
+                        <a href="#" rel="external" class="button view-button view-live-button" title="Click to open the courseware in the LMS in a new tab">View Live</a>
                     </li>
                 </ul>
             </nav>

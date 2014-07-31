@@ -58,7 +58,7 @@ var visibleToStaffOnly = visibilityState === 'staff_only';
 
     <div class="wrapper-visibility bar-mod-content">
         <h5 class="title">
-            <% if (released && published) { %>
+            <% if (released && published && !hasChanges) { %>
                 <%= gettext("Is Visible To:") %>
             <% } else { %>
                 <%= gettext("Will Be Visible To:") %>

@@ -381,7 +381,8 @@ define(["jquery", "underscore", "underscore.string", "js/spec_helpers/create_sin
                 });
 
                 describe("Content Visibility", function () {
-                    var requestStaffOnly, verifyStaffOnly, promptSpy;
+                    var requestStaffOnly, verifyStaffOnly, promptSpy,
+                        visibilityTitleCss = '.wrapper-visibility .title';
 
                     requestStaffOnly = function(isStaffOnly) {
                         containerPage.$('.action-staff-lock').click();
@@ -426,6 +427,24 @@ define(["jquery", "underscore", "underscore.string", "js/spec_helpers/create_sin
                     it("is initially shown to all", function() {
                         renderContainerPage(this, mockContainerXBlockHtml);
                         verifyStaffOnly(false);
+                    });
+
+                    it("displays 'Is Visible To' when released and published", function() {
+                        renderContainerPage(this, mockContainerXBlockHtml, {
+                            released_to_students: true,
+                            published: true,
+                            has_changes: false
+                        });
+                        expect(containerPage.$(visibilityTitleCss).text()).toContain('Is Visible To');
+                    });
+
+                    it("displays 'Will Be Visible To' when not released or fully published", function() {
+                        renderContainerPage(this, mockContainerXBlockHtml, {
+                            released_to_students: false,
+                            published: true,
+                            has_changes: true
+                        });
+                        expect(containerPage.$(visibilityTitleCss).text()).toContain('Will Be Visible To')
                     });
 
                     it("can be set to staff only", function() {
