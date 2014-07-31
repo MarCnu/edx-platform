@@ -196,7 +196,7 @@ define(["jquery", "underscore", "gettext", "js/views/baseview", "js/views/utils/
                         gettext("If you make this unit visible to students, students will be able to see its content after the release date has passed and you have published the unit. Do you want to proceed?"),
                         gettext("Make Visible to Students"),
                         function() {
-                            ViewUtils.runOperationShowingMessage(gettext('Making Unit Visible to Students&hellip;'),
+                            ViewUtils.runOperationShowingMessage(gettext('Making Visible to Students&hellip;'),
                                 _.bind(saveAndPublishStaffLock, self));
                         },
                         function() {
