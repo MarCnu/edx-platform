@@ -693,11 +693,16 @@ class GroupConfigurationsTest(ContainerBase, SplitTestMixin):
         unit.visit()
         experiment = unit.components[0]
 
-        # Find a link to Group Configuration.
-        experiment.go_to_group_configuration_page()
+        group_configuration_link_name = experiment.group_configuration_link_name
 
+        experiment.go_to_group_configuration_page()
         self.page.wait_for_page()
 
-        # Group Configuration usage information is expanded.
+        # Appropriate Group Configuration is expanded.
         self.assertFalse(self.page.group_configurations[0].is_expanded)
         self.assertTrue(self.page.group_configurations[1].is_expanded)
+
+        self.assertEqual(
+            group_configuration_link_name,
+            self.page.group_configurations[1].name
+        )

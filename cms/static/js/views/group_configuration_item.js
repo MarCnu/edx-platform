@@ -8,7 +8,6 @@ define([
     var GroupConfigurationsItem = BaseView.extend({
         tagName: 'section',
         attributes: function () {
-
             return {
                 'id': this.model.get('id'),
                 'tabindex': -1

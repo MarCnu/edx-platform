@@ -61,8 +61,7 @@ class GroupConfiguration(object):
         """
         Group configuration usage information is expanded.
         """
-        css = 'a.group-toggle.hide-groups'
-        return self.find_css(css).present
+        return self.find_css('a.group-toggle.hide-groups').present
 
     def add_group(self):
         """

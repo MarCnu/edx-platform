@@ -185,3 +185,13 @@ class Component(PageObject):
         Go to the Group Configuration used by the component.
         """
         self.q(css=self._bounded_selector('span.message-text a')).first.click()
+
+    @property
+    def group_configuration_link_name(self):
+        """
+        Get Group Configuration name from link.
+
+        Return name without single quotes.
+        """
+        return self.q(css=self._bounded_selector('span.message-text a')).first.text[0][1:-1]
+
