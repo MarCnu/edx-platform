@@ -3,15 +3,15 @@ Single page performance tests for Studio.
 """
 from bok_choy.performance import WebAppPerfReport, with_cache
 from ..pages.studio.auto_auth import AutoAuthPage
-from ..pages.studio.login import LoginPage
 from ..pages.studio.overview import CourseOutlinePage
-from ..pages.studio.signup import SignupPage
-from ..pages.studio.utils import click_css, set_input_value_and_save
 
 
 class StudioPagePerformanceTest(WebAppPerfReport):
     """
     Capture studio performance with HTTP Archives.
+
+    To import courses for the bok choy tests, pass the --imports_dir=<course directory> argument to the paver command
+    where <course directory> contains the (un-archived) courses to be imported.
     """
     def setUp(self):
         """
@@ -44,30 +44,22 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         course_outline_unit.go_to()
         self.save_har(har_name)
 
-    @with_cache
-    def test_justice_visit_outline(self):
-        """
-        Produce a report for Justice's outline page performance.
 
-        This method assumes that HarvardX's Justice exists in the bok choy database.
+class StudioJusticePerformanceTest(StudioPagePerformanceTest):
+    """
+    Test performance on the HarvardX Justice course.
+    """
+    @with_cache
+    def test_visit_outline(self):
+        """
+        Produce a report for outline page performance.
         """
         self.record_visit_course_outline(CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring'))
 
     @with_cache
-    def test_pub101_visit_outline(self):
+    def test_visit_unit_page(self):
         """
-        Produce a report for Andy's PUB101 outline page performance.
-
-        This method assumes that Andy's Publishing 101 exists the bok choy database.
-        """
-        self.record_visit_course_outline(CourseOutlinePage(self.browser, 'AndyA', 'PUB101', 'PUB101'))
-
-    @with_cache
-    def test_justice_visit_unit_page(self):
-        """
-        Produce a report for the unit page performance of Justice.
-
-        This method assumes that HarvardX's Justice exists in the bok choy database.
+        Produce a report for unit page performance.
         """
         course_outline_page = CourseOutlinePage(self.browser, 'HarvardX', 'ER22x', '2013_Spring')
         course_outline_page.visit()
@@ -79,13 +71,17 @@ class StudioPagePerformanceTest(WebAppPerfReport):
         course_outline_unit = course_outline_page.section(section_title).subsection(subsection_title).toggle_expand().unit(unit_title)
         self.record_visit_unit_page(course_outline_unit, course_outline_page.course_info)
 
-    @with_cache
-    def test_pub101_visit_unit_page(self):
-        """
-        Produce a report for the unit page performance of Andy's PUB101.
 
-        This method assumes that Andy's Publishing 101 exists the bok choy database.
-        """
+class StudioPub101PerformanceTest(StudioPagePerformanceTest):
+    """
+    Test performance on Andy's PUB101 outline page.
+    """
+    @with_cache
+    def test_visit_outline(self):
+        self.record_visit_course_outline(CourseOutlinePage(self.browser, 'AndyA', 'PUB101', 'PUB101'))
+
+    @with_cache
+    def test_visit_unit_page(self):
         course_outline_page = CourseOutlinePage(self.browser, 'AndyA', 'PUB101', 'PUB101')
         course_outline_page.visit()
 
