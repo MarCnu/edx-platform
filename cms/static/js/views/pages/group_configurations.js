@@ -59,10 +59,14 @@ function ($, _, gettext, BaseView, GroupConfigurationsList) {
          * @param {String|Number} Id of the group configuration.
          */
         expandConfiguration: function (id) {
-            this.collection.findWhere({
+            var groupConfig = this.collection.findWhere({
                 id: parseInt(id)
-            }).set('showGroups', true);
-            this.$('#' + id).focus();
+            });
+
+            if (groupConfig) {
+                groupConfig.set('showGroups', true);
+                this.$('#' + id).focus();
+            }
         }
     });
 
