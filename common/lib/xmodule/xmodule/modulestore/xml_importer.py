@@ -117,29 +117,33 @@ def import_from_xml(
         target_course_id=None, verbose=False,
         do_import_static=True, create_new_course_if_not_present=False):
     """
-    Import the specified xml data_dir into the "store" modulestore,
-    using org and course as the location org and course.
+    Import xml-based courses from data_dir into modulestore.
 
-    course_dirs: If specified, the list of course_dirs to load. Otherwise, load
-    all course dirs
+    Args:
+        store: a modulestore implementing ModuleStoreWriteBase in which to store the imported courses.
 
-    target_course_id is the CourseKey that all modules should be remapped to
-    after import off disk. We do this remapping as a post-processing step
-    because there's logic in the importing which expects a 'url_name' as an
-    identifier to where things are on disk
-    e.g. ../policies/<url_name>/policy.json as well as metadata keys in
-    the policy.json. so we need to keep the original url_name during import
+        data_dir: the root directory from which to find the xml courses.
 
-    :param do_import_static:
-        if False, then static files are not imported into the static content
-        store. This can be employed for courses which have substantial
-        unchanging static content, which is to inefficient to import every
-        time the course is loaded. Static content for some courses may also be
-        served directly by nginx, instead of going through django.
+        course_dirs: If specified, the list of data_dir subdirectories to load. Otherwise, load
+            all course dirs
 
-    : create_new_course_if_not_present:
-        If True, then a new course is created if it doesn't already exist.
-        The check for existing courses is case-insensitive.
+        target_course_id: is the CourseKey that all modules should be remapped to
+            after import off disk. NOTE: this only makes sense if importing only
+            one course. If there are more than one course loaded from data_dir/course_dirs & you
+            supply this id, this method will raise an AssertException.
+
+        static_content_store: the static asset store
+
+        do_import_static: if True, then import the course's static files into static_content_store
+            This can be employed for courses which have substantial
+            unchanging static content, which is too inefficient to import every
+            time the course is loaded. Static content for some courses may also be
+            served directly by nginx, instead of going through django.
+
+        create_new_course_if_not_present: If True, then a new course is created if it doesn't already exist.
+            Otherwise, it throws an InvalidLocationError for the course.
+
+        default_class, load_error_modules: are arguments for constructing the XMLModuleStore (see its doc)
     """
 
     xml_module_store = XMLModuleStore(
