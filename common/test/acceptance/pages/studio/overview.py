@@ -19,7 +19,7 @@ class CourseOutlineItem(object):
     """
     BODY_SELECTOR = None
     EDIT_BUTTON_SELECTOR = '.xblock-field-value-edit'
-    NAME_SELECTOR = '.xblock-field-value'
+    NAME_SELECTOR = '.item-title'
     NAME_INPUT_SELECTOR = '.xblock-field-input'
     NAME_FIELD_WRAPPER_SELECTOR = '.xblock-title .wrapper-xblock-field'
     STATUS_MESSAGE_SELECTOR = '> div[class$="status"] .status-message'
@@ -184,7 +184,7 @@ class CourseOutlineContainer(CourseOutlineItem):
         self.browser.execute_script("jQuery.fx.off = true;")
 
         def subsection_expanded():
-            add_button = self.q(css=self._bounded_selector('.add-item a.button-new')).first.results
+            add_button = self.q(css=self._bounded_selector('> .outline-content > .add-item a.button-new')).first.results
             return add_button and add_button[0].is_displayed()
 
         currently_expanded = subsection_expanded()
