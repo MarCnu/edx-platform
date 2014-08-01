@@ -193,8 +193,19 @@ def import_from_xml(
                 static_content_store, do_import_static, course_data_path, dest_course_id, verbose
             )
 
-            # STEP 3: import PUBLISHED items
-            # now loop through all the modules
+            # STEP 3: import any DRAFT items
+            with store.branch_setting(ModuleStoreEnum.Branch.draft_preferred, dest_course_id):
+                _import_course_draft(
+                    xml_module_store,
+                    store,
+                    user_id,
+                    course_data_path,
+                    course_key,
+                    dest_course_id,
+                    course.runtime
+                )
+
+            # STEP 4: import PUBLISHED items
             with store.branch_setting(ModuleStoreEnum.Branch.published_only, dest_course_id):
                 for module in xml_module_store.modules[course_key].itervalues():
                     if module.scope_ids.block_type == 'course':
@@ -212,18 +223,6 @@ def import_from_xml(
                         do_import_static=do_import_static,
                         runtime=course.runtime
                     )
-
-            # STEP 4: import any DRAFT items
-            with store.branch_setting(ModuleStoreEnum.Branch.draft_preferred, dest_course_id):
-                _import_course_draft(
-                    xml_module_store,
-                    store,
-                    user_id,
-                    course_data_path,
-                    course_key,
-                    dest_course_id,
-                    course.runtime
-                )
 
     return xml_module_store, course_items
 
