@@ -1,6 +1,6 @@
 define([
     'jquery', 'underscore', 'gettext', 'js/views/baseview',
-    'js/views/group_configurations_list', 'tooltip_manager'
+    'js/views/group_configurations_list'
 ],
 function ($, _, gettext, BaseView, GroupConfigurationsList) {
     'use strict';
