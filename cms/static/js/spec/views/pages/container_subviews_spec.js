@@ -182,7 +182,7 @@ define(["jquery", "underscore", "underscore.string", "js/spec_helpers/create_sin
                         published: true, has_changes: false, visibility_state: VisibilityState.ready,
                         release_date: "Jul 02, 2030 at 14:20 UTC"
                     });
-                    expect(containerPage.$(headerCss).text()).toContain('Published');
+                    expect(containerPage.$(headerCss).text()).toContain('Published (not yet released)');
                     expect(containerPage.$(publishButtonCss)).toHaveClass(disabledCss);
                     expect(containerPage.$(discardChangesButtonCss)).toHaveClass(disabledCss);
                     expect(containerPage.$(bitPublishingCss)).toHaveClass(readyClass);
@@ -210,7 +210,7 @@ define(["jquery", "underscore", "underscore.string", "js/spec_helpers/create_sin
                     fetch({published: true, has_changes: false, visibility_state: VisibilityState.unscheduled,
                         release_date: null
                     });
-                    expect(containerPage.$(headerCss).text()).toContain('Published');
+                    expect(containerPage.$(headerCss).text()).toContain('Published (not yet released)');
                     expect(containerPage.$(publishButtonCss)).toHaveClass(disabledCss);
                     expect(containerPage.$(discardChangesButtonCss)).toHaveClass(disabledCss);
                     verifyPublishingBitUnscheduled();
