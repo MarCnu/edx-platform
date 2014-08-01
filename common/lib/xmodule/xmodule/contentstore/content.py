@@ -162,6 +162,30 @@ class StaticContentStream(StaticContent):
                 break
             yield chunk
 
+    def stream_data_in_range(self, first_byte, last_byte):
+        """
+        Stream the data between first_byte and last_byte (included)
+        """
+        if first_byte < 0:
+            first_byte = 0
+        if first_byte >= self.length:
+            first_byte = self.length - 1
+        if last_byte >= self.length:
+            last_byte = self.length - 1
+        if first_byte > last_byte:
+            last_byte = first_byte
+            
+        self._stream.seek(first_byte)
+        position = first_byte
+        while True:
+            if last_byte < position + 1023:
+                chunk = self._stream.read(last_byte - position + 1)
+                yield chunk
+                break
+            chunk = self._stream.read(1024)
+            position += 1024
+            yield chunk
+
     def close(self):
         self._stream.close()
 
