@@ -156,10 +156,10 @@ class ContentStoreImportTest(ModuleStoreTestCase):
         store = modulestore()._get_modulestore_by_type(ModuleStoreEnum.Type.mongo)
 
         # we try to refresh the inheritance tree for each update_item in the import
-        with check_exact_number_of_calls(store, store.refresh_cached_metadata_inheritance_tree, 46):
+        with check_exact_number_of_calls(store, store.refresh_cached_metadata_inheritance_tree, 28):
 
-            # the post-publish step loads each item in the subtree, which calls _get_cached_metadata_inheritance_tree
-            with check_exact_number_of_calls(store, store._get_cached_metadata_inheritance_tree, 22):
+            # _get_cached_metadata_inheritance_tree should be called only once
+            with check_exact_number_of_calls(store, store._get_cached_metadata_inheritance_tree, 1):
 
                 # with bulk-edit in progress, the inheritance tree should be recomputed only at the end of the import
                 # NOTE: On Jenkins, with memcache enabled, the number of calls here is only 1.

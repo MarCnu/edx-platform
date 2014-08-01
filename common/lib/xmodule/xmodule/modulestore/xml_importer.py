@@ -169,34 +169,33 @@ def import_from_xml(
         else:
             dest_course_id = course_key
 
-        with store.branch_setting(ModuleStoreEnum.Branch.draft_preferred, dest_course_id):
-
-            # Creates a new course if it doesn't already exist
-            if create_new_course_if_not_present and not store.has_course(dest_course_id, ignore_case=True):
-                try:
-                    store.create_course(dest_course_id.org, dest_course_id.course, dest_course_id.run, user_id)
-                except InvalidLocationError:
-                    # course w/ same org and course exists
-                    log.debug(
-                        "Skipping import of course with id, {0},"
-                        "since it collides with an existing one".format(dest_course_id)
-                    )
-                    continue
-
-            with store.bulk_write_operations(dest_course_id):
-                # STEP 1: find and import course module
-                course, course_data_path = _import_course_module(
-                    xml_module_store, store, user_id, data_dir, course_key, dest_course_id, do_import_static, verbose
+        # Creates a new course if it doesn't already exist
+        if create_new_course_if_not_present and not store.has_course(dest_course_id, ignore_case=True):
+            try:
+                store.create_course(dest_course_id.org, dest_course_id.course, dest_course_id.run, user_id)
+            except InvalidLocationError:
+                # course w/ same org and course exists
+                log.debug(
+                    "Skipping import of course with id, {0},"
+                    "since it collides with an existing one".format(dest_course_id)
                 )
-                course_items.append(course)
+                continue
 
-                # STEP 2: import static content
-                _import_static_content_wrapper(
-                    static_content_store, do_import_static, course_data_path, dest_course_id, verbose
-                )
+        with store.bulk_write_operations(dest_course_id):
+            # STEP 1: find and import course module
+            course, course_data_path = _import_course_module(
+                xml_module_store, store, user_id, data_dir, course_key, dest_course_id, do_import_static, verbose
+            )
+            course_items.append(course)
 
-                # STEP 3: import PUBLISHED items
-                # now loop through all the modules
+            # STEP 2: import static content
+            _import_static_content_wrapper(
+                static_content_store, do_import_static, course_data_path, dest_course_id, verbose
+            )
+
+            # STEP 3: import PUBLISHED items
+            # now loop through all the modules
+            with store.branch_setting(ModuleStoreEnum.Branch.published_only, dest_course_id):
                 for module in xml_module_store.modules[course_key].itervalues():
                     if module.scope_ids.block_type == 'course':
                         # we've already saved the course module up above
@@ -214,10 +213,8 @@ def import_from_xml(
                         runtime=course.runtime
                     )
 
-                # STEP 4: Publish all PUBLISHED items
-                store.publish(course.location, user_id)
-
-                # STEP 5: import any DRAFT items
+            # STEP 4: import any DRAFT items
+            with store.branch_setting(ModuleStoreEnum.Branch.draft_preferred, dest_course_id):
                 _import_course_draft(
                     xml_module_store,
                     store,
