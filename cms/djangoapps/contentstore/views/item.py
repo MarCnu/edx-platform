@@ -623,10 +623,7 @@ def create_xblock_info(xblock, data=None, metadata=None, include_ancestor_info=F
 
         return None
 
-    if parent_xblock:
-        is_xblock_unit = parent_xblock.category == 'sequential' and xblock.category == 'vertical'
-    else:
-        is_xblock_unit = is_unit(xblock)
+    is_xblock_unit = is_unit(xblock, parent_xblock)
     is_unit_with_changes = is_xblock_unit and modulestore().has_changes(xblock.location)
 
     # Compute the child info first so it can be included in aggregate information for the parent
